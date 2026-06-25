@@ -1,0 +1,540 @@
+# descargador-multimedia
+
+`descargador-multimedia` es una aplicacion hecha en Python para descargar contenido permitido desde un enlace y guardarlo como audio o video usando `yt-dlp` y `ffmpeg`.
+
+El proyecto incluye tres formas de uso:
+
+- Interfaz grafica con Tkinter.
+- Menu interactivo en consola.
+- Comandos directos desde terminal.
+
+## Aviso legal de uso responsable
+
+Usa este programa solo con contenido propio, con permiso del autor, Creative Commons o contenido autorizado para descarga.
+
+No uses esta herramienta para saltarte DRM, contenido privado, inicios de sesion, restricciones de pago, suscripciones, muros de pago ni protecciones tecnicas.
+
+El usuario es responsable de cumplir las leyes aplicables y los terminos de uso de cada sitio.
+
+## Que hace el programa
+
+El programa permite:
+
+- Pegar o escribir una URL.
+- Pegar varios enlaces y descargarlos en lote.
+- Elegir si quieres guardar el contenido como audio o video.
+- Elegir el formato de salida.
+- Seleccionar una carpeta de salida.
+- Descargar usando `yt-dlp`.
+- Convertir o unir audio/video usando `ffmpeg`.
+- Guardar los archivos en `descargas/` o en la carpeta que elijas.
+
+## Estructura del proyecto
+
+```text
+descargador-multimedia/
+|-- app.py
+|-- gui.py
+|-- requirements.txt
+|-- instalar_dependencias.bat
+|-- ejecutar_gui.bat
+|-- README.md
+`-- descargas/
+    `-- .gitkeep
+```
+
+## Para que sirve cada archivo
+
+- `app.py`: version de consola. Permite usar menu interactivo o comandos directos.
+- `gui.py`: version con interfaz grafica usando Tkinter.
+- `requirements.txt`: lista de dependencias de Python. Incluye `yt-dlp`.
+- `instalar_dependencias.bat`: instalador rapido para Windows. Verifica Python, intenta instalarlo o actualizarlo con Winget, instala dependencias de Python, verifica `yt-dlp` e intenta instalar `ffmpeg`.
+- `ejecutar_gui.bat`: abre la interfaz grafica con doble clic.
+- `README.md`: instrucciones del proyecto.
+- `descargas/`: carpeta predeterminada donde se guardan los archivos descargados.
+
+## Formatos permitidos
+
+Audio:
+
+- `mp3`
+- `m4a`
+- `wav`
+- `flac`
+- `opus`
+
+Video:
+
+- `mp4`
+- `webm`
+- `mkv`
+
+## Requisitos
+
+Necesitas instalar:
+
+- Python 3.9 o superior.
+- `yt-dlp`, instalado desde `requirements.txt`.
+- `ffmpeg`, instalado en Windows y disponible en el `PATH`.
+
+Tkinter normalmente ya viene incluido con Python en Windows. No se instala desde `pip`.
+
+## Paso 1: instalar Python en Windows
+
+1. Entra a la pagina oficial:
+
+   <https://www.python.org/downloads/>
+
+2. Descarga Python para Windows.
+
+3. Abre el instalador.
+
+4. Muy importante: marca la casilla:
+
+```text
+Add python.exe to PATH
+```
+
+5. Luego presiona `Install Now`.
+
+6. Cuando termine, cierra y vuelve a abrir PowerShell.
+
+7. Verifica que Python funciona:
+
+```powershell
+python --version
+```
+
+Tambien verifica que `pip` funciona usando:
+
+```powershell
+python -m pip --version
+```
+
+Si ambos comandos muestran una version, Python quedo instalado correctamente.
+
+## Paso 2: abrir la carpeta del proyecto
+
+En PowerShell, entra a la carpeta del proyecto:
+
+```powershell
+cd C:\Users\custo\Documents\Codex\2026-06-25\crea-un-proyecto-en-python-llamado\descargador-multimedia
+```
+
+Si moviste el proyecto a otra carpeta, usa la ruta donde lo guardaste.
+
+## Paso 3: instalar dependencias con el archivo BAT
+
+El proyecto incluye un archivo llamado:
+
+```text
+instalar_dependencias.bat
+```
+
+Este archivo sirve para facilitar la instalacion en Windows.
+
+Puedes ejecutarlo con doble clic. Tambien puedes ejecutarlo desde PowerShell:
+
+```powershell
+.\instalar_dependencias.bat
+```
+
+El archivo hace estas tareas:
+
+- Entra automaticamente a la carpeta del proyecto.
+- Verifica si `python` esta disponible.
+- Si Python no esta instalado, intenta instalarlo con Winget usando `winget install Python.Python.3.12`.
+- Si Python ya esta instalado, intenta actualizarlo con Winget usando `winget upgrade Python.Python.3.12`.
+- Actualiza `pip`.
+- Instala las dependencias de `requirements.txt`.
+- Verifica que `yt-dlp` haya quedado instalado.
+- Verifica si `ffmpeg` existe.
+- Si falta `ffmpeg`, intenta instalarlo con Winget usando `winget install Gyan.FFmpeg`.
+- Al final indica como ejecutar el programa.
+
+En resumen: si la computadora tiene Winget, este archivo puede dejar casi todo preparado automaticamente. Puede instalar o actualizar Python, instalar las dependencias de Python y ayudar con `ffmpeg`.
+
+Importante: el `.bat` puede intentar instalar Python automaticamente si tienes Winget. Si no tienes Winget, te pedira instalar Python manualmente desde:
+
+<https://www.python.org/downloads/>
+
+Durante la instalacion de Python debes marcar:
+
+```text
+Add python.exe to PATH
+```
+
+Despues de instalar Python, ya sea con Winget o manualmente, cierra y vuelve a abrir PowerShell. Luego ejecuta otra vez `instalar_dependencias.bat`. Esto es necesario porque Windows debe actualizar el `PATH`.
+
+## Paso 4: instalar dependencias manualmente
+
+Si prefieres no usar el archivo `.bat`, puedes instalar las dependencias manualmente.
+
+La forma recomendada es:
+
+```powershell
+python -m pip install -r requirements.txt
+```
+
+Esto instala `yt-dlp`.
+
+En Windows tambien puedes hacer doble clic en:
+
+```text
+instalar_dependencias.bat
+```
+
+Ese archivo ejecuta automaticamente la instalacion de dependencias y tambien intenta ayudarte con `ffmpeg` si tienes Winget.
+
+Los comandos principales que ejecuta son:
+
+```powershell
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+```
+
+## Paso 5: instalar ffmpeg en Windows
+
+`ffmpeg` es necesario para convertir audio y unir video con audio.
+
+Si usaste `instalar_dependencias.bat`, el archivo ya intento revisar o instalar `ffmpeg` con Winget. Si no funciono, puedes instalarlo manualmente con las instrucciones de esta seccion.
+
+### Opcion recomendada: instalar con Winget
+
+Abre PowerShell y ejecuta:
+
+```powershell
+winget install Gyan.FFmpeg
+```
+
+Cuando termine, cierra PowerShell y vuelve a abrirlo.
+
+Verifica que `ffmpeg` funciona:
+
+```powershell
+ffmpeg -version
+```
+
+Si aparece informacion de version, `ffmpeg` quedo instalado correctamente.
+
+### Opcion manual si no tienes Winget
+
+1. Entra a:
+
+   <https://www.gyan.dev/ffmpeg/builds/>
+
+2. Descarga una version de ffmpeg para Windows.
+
+3. Descomprime el archivo.
+
+4. Busca la carpeta `bin`, donde debe estar `ffmpeg.exe`.
+
+5. Agrega esa carpeta `bin` al `PATH` de Windows.
+
+6. Cierra y vuelve a abrir PowerShell.
+
+7. Verifica:
+
+```powershell
+ffmpeg -version
+```
+
+## Forma recomendada de uso: interfaz grafica
+
+La forma mas facil es abrir la interfaz grafica.
+
+Puedes hacerlo con doble clic en:
+
+```text
+ejecutar_gui.bat
+```
+
+Este archivo `.bat` entra automaticamente a la carpeta del proyecto y ejecuta:
+
+```powershell
+python gui.py
+```
+
+Por eso, despues de instalar dependencias, una persona puede abrir el programa sin escribir comandos, solo con doble clic en `ejecutar_gui.bat`.
+
+Tambien puedes abrirla desde PowerShell:
+
+```powershell
+python gui.py
+```
+
+La ventana permite:
+
+1. Pegar una URL o varios enlaces, uno por linea.
+2. Elegir el formato.
+3. Elegir la carpeta de salida.
+4. Presionar `Descargar`.
+
+Antes de iniciar, la aplicacion muestra una confirmacion con la URL, el formato y la carpeta elegida.
+
+### Descargar varios enlaces desde la interfaz
+
+En la caja de texto de URLs puedes pegar varios enlaces, uno debajo del otro:
+
+```text
+https://ejemplo.com/video-1
+https://ejemplo.com/video-2
+https://ejemplo.com/video-3
+```
+
+Luego eliges el formato y presionas `Descargar`. El programa enviara todos los enlaces a `yt-dlp` en una sola operacion de lote.
+
+## Uso con menu interactivo en consola
+
+Si prefieres usar la terminal, ejecuta:
+
+```powershell
+python app.py
+```
+
+El programa te pedira:
+
+1. Una o varias URLs.
+2. Formato deseado.
+3. Carpeta de salida.
+4. Confirmacion antes de descargar.
+
+Si presionas Enter cuando pide la carpeta de salida, se usara la carpeta predeterminada:
+
+```text
+descargas/
+```
+
+## Uso con comandos directos
+
+Tambien puedes usar comandos directos.
+
+### Descargar como MP3
+
+```powershell
+python app.py "URL_DEL_VIDEO" --formato mp3
+```
+
+### Descargar varios enlaces como MP3
+
+Puedes escribir varios enlaces en el mismo comando:
+
+```powershell
+python app.py "URL_1" "URL_2" "URL_3" --formato mp3
+```
+
+Todos se guardaran en la carpeta de salida con el mismo formato.
+
+### Descargar como MP4
+
+```powershell
+python app.py "URL_DEL_VIDEO" --formato mp4
+```
+
+### Descargar como WAV
+
+```powershell
+python app.py "URL_DEL_VIDEO" --formato wav
+```
+
+### Descargar como M4A
+
+```powershell
+python app.py "URL_DEL_VIDEO" --formato m4a
+```
+
+### Elegir nombre de archivo
+
+Puedes elegir el nombre del archivo final usando `--output`.
+
+No escribas la extension, porque el programa la agrega segun el formato.
+
+```powershell
+python app.py "URL_DEL_VIDEO" --formato mp3 --output musica
+```
+
+Ese comando guardara un archivo llamado algo como:
+
+```text
+musica.mp3
+```
+
+Si usas `--output` con varios enlaces, el programa agrega un numero automaticamente para evitar sobrescribir archivos:
+
+```powershell
+python app.py "URL_1" "URL_2" --formato mp3 --output musica
+```
+
+Esto puede crear archivos como:
+
+```text
+musica_00001.mp3
+musica_00002.mp3
+```
+
+### Elegir carpeta de salida
+
+Puedes indicar otra carpeta usando `--carpeta`:
+
+```powershell
+python app.py "URL_DEL_VIDEO" --formato mp4 --carpeta "C:\Videos"
+```
+
+## Donde se guardan las descargas
+
+Por defecto, los archivos se guardan en:
+
+```text
+descargador-multimedia/descargas/
+```
+
+Si usas la interfaz grafica, puedes elegir otra carpeta con el boton `Examinar`.
+
+Si usas consola, puedes elegir otra carpeta con `--carpeta`.
+
+## Instalacion y ejecucion con archivos BAT
+
+El proyecto incluye dos archivos `.bat` para usuarios de Windows:
+
+```text
+instalar_dependencias.bat
+ejecutar_gui.bat
+```
+
+### instalar_dependencias.bat
+
+Sirve para preparar la computadora.
+
+Hace lo siguiente:
+
+- Comprueba si Python esta instalado.
+- Si no esta instalado, intenta instalar Python con Winget.
+- Si Python ya esta instalado, intenta actualizarlo con Winget.
+- Actualiza `pip`.
+- Instala `yt-dlp` desde `requirements.txt`.
+- Comprueba si `yt-dlp` funciona.
+- Comprueba si `ffmpeg` esta instalado.
+- Si falta `ffmpeg`, intenta instalarlo con Winget.
+
+Si el `.bat` instala Python por primera vez, cierra la ventana y ejecuta `instalar_dependencias.bat` una segunda vez. Esto es normal porque Windows necesita actualizar el `PATH`.
+
+### ejecutar_gui.bat
+
+Sirve para abrir el programa.
+
+Hace lo siguiente:
+
+- Entra automaticamente a la carpeta del proyecto.
+- Ejecuta `python gui.py`.
+- Si ocurre un error, deja la ventana abierta para que puedas leer el mensaje.
+
+Flujo recomendado:
+
+1. Doble clic en `instalar_dependencias.bat`.
+2. Si instala Python, cerrar y ejecutar otra vez `instalar_dependencias.bat`.
+3. Doble clic en `ejecutar_gui.bat`.
+4. Pegar uno o varios enlaces.
+5. Elegir formato y carpeta.
+6. Descargar.
+
+## Errores comunes y soluciones
+
+### Error: no se encontro yt-dlp
+
+Significa que falta instalar la dependencia de Python.
+
+Solucion:
+
+```powershell
+python -m pip install -r requirements.txt
+```
+
+Tambien puedes ejecutar:
+
+```text
+instalar_dependencias.bat
+```
+
+### pip no se reconoce como comando
+
+Usa `pip` a traves de Python:
+
+```powershell
+python -m pip install -r requirements.txt
+```
+
+Si `python` tampoco se reconoce, instala Python y marca `Add python.exe to PATH`.
+
+### Error: no se encontro ffmpeg
+
+Significa que `ffmpeg` no esta instalado o no esta en el `PATH`.
+
+Solucion recomendada:
+
+```powershell
+winget install Gyan.FFmpeg
+```
+
+Despues cierra y vuelve a abrir PowerShell.
+
+Verifica:
+
+```powershell
+ffmpeg -version
+```
+
+### La ventana no abre
+
+Verifica que Python funcione:
+
+```powershell
+python --version
+```
+
+Luego intenta abrir la GUI desde PowerShell para ver el error:
+
+```powershell
+python gui.py
+```
+
+### La descarga falla aunque yt-dlp y ffmpeg estan instalados
+
+Puede pasar si:
+
+- El enlace no es valido.
+- El sitio no permite descargar ese contenido.
+- El contenido es privado.
+- El contenido requiere inicio de sesion.
+- El contenido tiene restricciones de pago o protecciones.
+- No tienes conexion a internet.
+
+Este programa no intenta saltarse restricciones, logins, DRM ni protecciones.
+
+## Recomendacion para subir a GitHub
+
+Antes de subir el proyecto, puedes mantener esta estructura:
+
+```text
+descargador-multimedia/
+|-- app.py
+|-- gui.py
+|-- requirements.txt
+|-- instalar_dependencias.bat
+|-- ejecutar_gui.bat
+|-- README.md
+`-- descargas/
+    `-- .gitkeep
+```
+
+No subas archivos descargados dentro de `descargas/`. La carpeta incluye `.gitkeep` solo para que GitHub conserve la carpeta vacia.
+
+## Resumen rapido
+
+1. Abre la carpeta del proyecto.
+2. Ejecuta `instalar_dependencias.bat`.
+3. Si el `.bat` instala Python, cierra la ventana y ejecuta otra vez `instalar_dependencias.bat`.
+4. Si el `.bat` no pudo instalar ffmpeg, instala ffmpeg con `winget install Gyan.FFmpeg`.
+5. Abre el programa con `ejecutar_gui.bat`.
+6. Pega una URL permitida o varios enlaces, uno por linea.
+7. Elige formato y carpeta.
+8. Presiona `Descargar`.
