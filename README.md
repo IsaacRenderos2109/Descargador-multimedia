@@ -1,4 +1,4 @@
-# descargador-multimedia
+# Descargador Multimedia
 
 `descargador-multimedia` es una aplicacion hecha en Python para descargar contenido permitido desde un enlace y guardarlo como audio o video usando `yt-dlp` y `ffmpeg`.
 
