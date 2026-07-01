@@ -1,4 +1,3 @@
-import subprocess
 import threading
 import tkinter as tk
 from pathlib import Path
@@ -12,6 +11,7 @@ from app import (
     build_audio_command,
     build_output_template,
     build_video_command,
+    check_ffmpeg_installed,
     get_ytdlp_command,
     normalize_urls,
 )
@@ -105,10 +105,10 @@ class DownloaderApp:
             )
             return None
 
-        if subprocess.run(["where", "ffmpeg"], capture_output=True, text=True).returncode != 0:
+        if not check_ffmpeg_installed():
             messagebox.showerror(
                 "Falta ffmpeg",
-                "No se encontro ffmpeg. Instala ffmpeg y agregalo al PATH de Windows.",
+                "No se encontro ffmpeg. Ejecuta instalar_dependencias.bat para instalar el respaldo de ffmpeg.",
             )
             return None
 

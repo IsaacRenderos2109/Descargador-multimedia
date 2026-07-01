@@ -67,6 +67,34 @@ def check_ytdlp_installed():
     return False
 
 
+def get_ffmpeg_location():
+    """Devuelve una ruta de ffmpeg disponible en el sistema o instalada por Python."""
+    system_ffmpeg = shutil.which("ffmpeg")
+
+    if system_ffmpeg is not None:
+        return system_ffmpeg
+
+    try:
+        import imageio_ffmpeg
+
+        return imageio_ffmpeg.get_ffmpeg_exe()
+    except ImportError:
+        return None
+
+
+def check_ffmpeg_installed():
+    """Verifica si ffmpeg esta disponible para yt-dlp."""
+    if get_ffmpeg_location() is not None:
+        return True
+
+    print(
+        "Error: no se encontro ffmpeg. Ejecuta instalar_dependencias.bat "
+        "o instala ffmpeg manualmente.",
+        file=sys.stderr,
+    )
+    return False
+
+
 def normalize_urls(raw_urls):
     """Limpia una lista de enlaces y elimina lineas vacias."""
     return [url.strip() for url in raw_urls if url.strip()]
@@ -88,9 +116,17 @@ def build_output_template(output_dir, output_name, url_count=1):
     return str(output_dir / "%(title)s.%(ext)s")
 
 
+def add_ffmpeg_location(command):
+    """Agrega la ubicacion de ffmpeg al comando si se encontro una ruta valida."""
+    ffmpeg_location = get_ffmpeg_location()
+
+    if ffmpeg_location is not None:
+        command.extend(["--ffmpeg-location", ffmpeg_location])
+
+
 def build_audio_command(urls, output_template, audio_format):
     """Construye el comando para descargar y convertir a un formato de audio."""
-    return [
+    command = [
         *get_ytdlp_command(),
         "--no-playlist",
         "--extract-audio",
@@ -98,13 +134,16 @@ def build_audio_command(urls, output_template, audio_format):
         audio_format,
         "--output",
         output_template,
-        *urls,
     ]
+
+    add_ffmpeg_location(command)
+    command.extend(urls)
+    return command
 
 
 def build_video_command(urls, output_template, video_format):
     """Construye el comando para descargar y guardar como video."""
-    return [
+    command = [
         *get_ytdlp_command(),
         "--no-playlist",
         "--format",
@@ -113,8 +152,11 @@ def build_video_command(urls, output_template, video_format):
         video_format,
         "--output",
         output_template,
-        *urls,
     ]
+
+    add_ffmpeg_location(command)
+    command.extend(urls)
+    return command
 
 
 def download_media(urls, media_format, output_dir, output_name=None):
@@ -232,7 +274,7 @@ def run_interactive_menu():
     if not check_ytdlp_installed():
         return 1
 
-    if not check_tool_installed("ffmpeg"):
+    if not check_ffmpeg_installed():
         return 1
 
     success = download_media(urls, media_format, output_dir)
@@ -283,7 +325,7 @@ def main():
     if not check_ytdlp_installed():
         return 1
 
-    if not check_tool_installed("ffmpeg"):
+    if not check_ffmpeg_installed():
         return 1
 
     output_dir = Path(args.carpeta).expanduser().resolve()

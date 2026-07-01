@@ -1,1 +1,2 @@
 yt-dlp>=2024.12.23
+imageio-ffmpeg>=0.5.1

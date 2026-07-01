@@ -1,4 +1,4 @@
-# Descargador Multimedia
+# descargador-multimedia
 
 `descargador-multimedia` es una aplicacion hecha en Python para descargar contenido permitido desde un enlace y guardarlo como audio o video usando `yt-dlp` y `ffmpeg`.
 
@@ -38,6 +38,7 @@ descargador-multimedia/
 |-- requirements.txt
 |-- instalar_dependencias.bat
 |-- ejecutar_gui.bat
+|-- .gitignore
 |-- README.md
 `-- descargas/
     `-- .gitkeep
@@ -47,9 +48,10 @@ descargador-multimedia/
 
 - `app.py`: version de consola. Permite usar menu interactivo o comandos directos.
 - `gui.py`: version con interfaz grafica usando Tkinter.
-- `requirements.txt`: lista de dependencias de Python. Incluye `yt-dlp`.
-- `instalar_dependencias.bat`: instalador rapido para Windows. Verifica Python, intenta instalarlo o actualizarlo con Winget, instala dependencias de Python, verifica `yt-dlp` e intenta instalar `ffmpeg`.
+- `requirements.txt`: lista de dependencias de Python. Incluye `yt-dlp` e `imageio-ffmpeg`.
+- `instalar_dependencias.bat`: instalador rapido para Windows. Verifica Python, intenta instalarlo o actualizarlo con Winget, si no hay Winget intenta descargar Python desde python.org, agrega Python y Scripts al PATH del usuario, instala dependencias de Python, verifica `yt-dlp` e instala un respaldo de `ffmpeg`.
 - `ejecutar_gui.bat`: abre la interfaz grafica con doble clic.
+- `.gitignore`: evita subir cachés, entornos virtuales y archivos descargados.
 - `README.md`: instrucciones del proyecto.
 - `descargas/`: carpeta predeterminada donde se guardan los archivos descargados.
 
@@ -75,7 +77,7 @@ Necesitas instalar:
 
 - Python 3.9 o superior.
 - `yt-dlp`, instalado desde `requirements.txt`.
-- `ffmpeg`, instalado en Windows y disponible en el `PATH`.
+- `ffmpeg`, instalado en Windows o disponible como respaldo mediante `imageio-ffmpeg`.
 
 Tkinter normalmente ya viene incluido con Python en Windows. No se instala desde `pip`.
 
@@ -143,18 +145,26 @@ El archivo hace estas tareas:
 
 - Entra automaticamente a la carpeta del proyecto.
 - Verifica si `python` esta disponible.
+- Si no encuentra `python`, intenta usar el Python Launcher `py`.
 - Si Python no esta instalado, intenta instalarlo con Winget usando `winget install Python.Python.3.12`.
+- Si no existe Winget, intenta descargar el instalador oficial de Python desde `python.org`.
+- Instala Python en modo silencioso con `pip` y con opcion de agregarlo al PATH.
+- Despues de instalar Python, busca `python.exe` en rutas comunes de Windows.
+- Agrega la carpeta de Python y la carpeta `Scripts` al PATH del usuario.
+- Actualiza el PATH de la ventana actual para poder seguir instalando sin reiniciar en muchos casos.
 - Si Python ya esta instalado, intenta actualizarlo con Winget usando `winget upgrade Python.Python.3.12`.
+- Ejecuta `ensurepip` para asegurar que `pip` exista.
 - Actualiza `pip`.
 - Instala las dependencias de `requirements.txt`.
 - Verifica que `yt-dlp` haya quedado instalado.
 - Verifica si `ffmpeg` existe.
-- Si falta `ffmpeg`, intenta instalarlo con Winget usando `winget install Gyan.FFmpeg`.
+- Si falta `ffmpeg`, instala `imageio-ffmpeg` como respaldo para que la aplicacion pueda convertir sin depender del PATH del sistema.
+- Si el respaldo falla, intenta instalar `ffmpeg` con Winget usando `winget install Gyan.FFmpeg`.
 - Al final indica como ejecutar el programa.
 
-En resumen: si la computadora tiene Winget, este archivo puede dejar casi todo preparado automaticamente. Puede instalar o actualizar Python, instalar las dependencias de Python y ayudar con `ffmpeg`.
+En resumen: el archivo intenta prepararse para varios escenarios: PC con Winget, PC sin Winget, Python fuera del PATH, alias falso de Microsoft Store, falta de `pip`, falta de `yt-dlp` y falta de `ffmpeg`.
 
-Importante: el `.bat` puede intentar instalar Python automaticamente si tienes Winget. Si no tienes Winget, te pedira instalar Python manualmente desde:
+Importante: si no hay Winget, el `.bat` intentara descargar Python desde python.org usando PowerShell. Si la red bloquea la descarga o no hay internet, entonces te pedira instalar Python manualmente desde:
 
 <https://www.python.org/downloads/>
 
@@ -164,7 +174,7 @@ Durante la instalacion de Python debes marcar:
 Add python.exe to PATH
 ```
 
-Despues de instalar Python, ya sea con Winget o manualmente, cierra y vuelve a abrir PowerShell. Luego ejecuta otra vez `instalar_dependencias.bat`. Esto es necesario porque Windows debe actualizar el `PATH`.
+Despues de instalar Python, ya sea con Winget, descarga directa o manualmente, normalmente el instalador intenta actualizar el PATH sin reiniciar. Si aun asi Windows no reconoce `python`, cierra y vuelve a abrir PowerShell. Luego ejecuta otra vez `instalar_dependencias.bat`.
 
 ## Paso 4: instalar dependencias manualmente
 
@@ -198,6 +208,8 @@ python -m pip install -r requirements.txt
 `ffmpeg` es necesario para convertir audio y unir video con audio.
 
 Si usaste `instalar_dependencias.bat`, el archivo ya intento revisar o instalar `ffmpeg` con Winget. Si no funciono, puedes instalarlo manualmente con las instrucciones de esta seccion.
+
+El proyecto tambien incluye `imageio-ffmpeg` como respaldo. Esto permite que la aplicacion encuentre un `ffmpeg` instalado por Python aunque el comando `ffmpeg` no exista en el PATH de Windows.
 
 ### Opcion recomendada: instalar con Winget
 
@@ -414,9 +426,10 @@ Hace lo siguiente:
 - Instala `yt-dlp` desde `requirements.txt`.
 - Comprueba si `yt-dlp` funciona.
 - Comprueba si `ffmpeg` esta instalado.
-- Si falta `ffmpeg`, intenta instalarlo con Winget.
+- Si falta `ffmpeg`, instala `imageio-ffmpeg` como respaldo.
+- Si el respaldo no funciona y hay Winget, intenta instalar ffmpeg del sistema.
 
-Si el `.bat` instala Python por primera vez, cierra la ventana y ejecuta `instalar_dependencias.bat` una segunda vez. Esto es normal porque Windows necesita actualizar el `PATH`.
+Si el `.bat` instala Python por primera vez, normalmente intentara seguir solo porque agrega Python al PATH de la ventana actual y al PATH del usuario. Si Windows aun no reconoce `python`, cierra la ventana y ejecuta `instalar_dependencias.bat` una segunda vez.
 
 ### ejecutar_gui.bat
 
@@ -431,7 +444,7 @@ Hace lo siguiente:
 Flujo recomendado:
 
 1. Doble clic en `instalar_dependencias.bat`.
-2. Si instala Python, cerrar y ejecutar otra vez `instalar_dependencias.bat`.
+2. Si instala Python pero no puede continuar, cerrar y ejecutar otra vez `instalar_dependencias.bat`.
 3. Doble clic en `ejecutar_gui.bat`.
 4. Pegar uno o varios enlaces.
 5. Elegir formato y carpeta.
@@ -469,7 +482,15 @@ Si `python` tampoco se reconoce, instala Python y marca `Add python.exe to PATH`
 
 Significa que `ffmpeg` no esta instalado o no esta en el `PATH`.
 
-Solucion recomendada:
+Primero ejecuta:
+
+```text
+instalar_dependencias.bat
+```
+
+Ese archivo instala `imageio-ffmpeg` como respaldo. Si aun asi falla, instala ffmpeg del sistema.
+
+Solucion recomendada para ffmpeg del sistema:
 
 ```powershell
 winget install Gyan.FFmpeg
@@ -497,6 +518,37 @@ Luego intenta abrir la GUI desde PowerShell para ver el error:
 python gui.py
 ```
 
+Si ves un mensaje como `Python was not found; run without arguments to install from the Microsoft Store`, Windows esta usando el alias de Microsoft Store en lugar del Python real. Ejecuta:
+
+```text
+instalar_dependencias.bat
+```
+
+Luego abre el programa con:
+
+```text
+ejecutar_gui.bat
+```
+
+El archivo `ejecutar_gui.bat` busca el `python.exe` real en rutas comunes, prueba el Python Launcher `py` y evita quedarse solamente con el alias de Microsoft Store.
+
+### No se encontro Winget
+
+En algunas computadoras Windows no trae Winget instalado. En ese caso, `instalar_dependencias.bat` intenta descargar Python directamente desde python.org.
+
+Si tambien falla esa descarga, normalmente es por:
+
+- No hay internet.
+- La red bloquea descargas.
+- PowerShell tiene restricciones.
+- El antivirus bloqueo el instalador.
+
+Solucion:
+
+1. Instala Python manualmente desde <https://www.python.org/downloads/>.
+2. Marca `Add python.exe to PATH`.
+3. Ejecuta otra vez `instalar_dependencias.bat`.
+
 ### La descarga falla aunque yt-dlp y ffmpeg estan instalados
 
 Puede pasar si:
@@ -521,6 +573,7 @@ descargador-multimedia/
 |-- requirements.txt
 |-- instalar_dependencias.bat
 |-- ejecutar_gui.bat
+|-- .gitignore
 |-- README.md
 `-- descargas/
     `-- .gitkeep
@@ -528,11 +581,46 @@ descargador-multimedia/
 
 No subas archivos descargados dentro de `descargas/`. La carpeta incluye `.gitkeep` solo para que GitHub conserve la carpeta vacia.
 
+## Carpeta limpia para compartir
+
+Si quieres compartir el proyecto con otra persona, usa la carpeta `reales`.
+
+Esa carpeta debe contener solamente los archivos necesarios:
+
+```text
+reales/
+`-- descargador-multimedia/
+    |-- app.py
+    |-- gui.py
+    |-- requirements.txt
+    |-- instalar_dependencias.bat
+    |-- ejecutar_gui.bat
+    |-- .gitignore
+    |-- README.md
+    `-- descargas/
+        `-- .gitkeep
+```
+
+No debe incluir:
+
+- `__pycache__/`
+- `.venv/`
+- archivos descargados como `.mp3`, `.mp4`, `.wav`, etc.
+- carpetas internas de Codex.
+- archivos temporales.
+- datos personales o confidenciales.
+
+La persona que reciba esa carpeta puede hacer esto:
+
+1. Abrir `reales/descargador-multimedia`.
+2. Ejecutar `instalar_dependencias.bat`.
+3. Ejecutar `ejecutar_gui.bat`.
+
 ## Resumen rapido
 
 1. Abre la carpeta del proyecto.
 2. Ejecuta `instalar_dependencias.bat`.
-3. Si el `.bat` instala Python, cierra la ventana y ejecuta otra vez `instalar_dependencias.bat`.
+3. Si el `.bat` instala Python pero no puede continuar, cierra la ventana y ejecuta otra vez `instalar_dependencias.bat`.
 4. Si el `.bat` no pudo instalar ffmpeg, instala ffmpeg con `winget install Gyan.FFmpeg`.
 5. Abre el programa con `ejecutar_gui.bat`.
 6. Pega una URL permitida o varios enlaces, uno por linea.
