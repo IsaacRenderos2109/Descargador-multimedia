@@ -3,6 +3,7 @@ __pycache__/
 .venv/
 venv/
 env/
+descargas/
 *.mp3
 *.m4a
 *.wav
@@ -11,5 +12,4 @@ env/
 *.mp4
 *.webm
 *.mkv
-descargas/*
-!descargas/.gitkeep
+diagnostico_instalacion.txt

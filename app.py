@@ -102,6 +102,7 @@ def normalize_urls(raw_urls):
 
 def build_output_template(output_dir, output_name, url_count=1):
     """Crea la ruta base de salida para yt-dlp dentro de la carpeta elegida."""
+    output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
     if output_name:

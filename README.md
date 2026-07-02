@@ -43,8 +43,7 @@ descargador-multimedia/
 |-- ejecutar_gui.bat
 |-- .gitignore
 |-- README.md
-`-- descargas/
-    `-- .gitkeep
+`-- descargas/   (se crea automaticamente al ejecutar el programa)
 ```
 
 ## Para que sirve cada archivo
@@ -56,7 +55,7 @@ descargador-multimedia/
 - `ejecutar_gui.bat`: abre la interfaz grafica con doble clic.
 - `.gitignore`: evita subir caches, entornos virtuales y archivos descargados.
 - `README.md`: instrucciones del proyecto.
-- `descargas/`: carpeta predeterminada donde se guardan los archivos descargados.
+- `descargas/`: carpeta predeterminada donde se guardan los archivos descargados. Se crea automaticamente si no existe.
 
 ## Formatos permitidos
 
@@ -449,6 +448,14 @@ Por defecto, los archivos se guardan en:
 descargador-multimedia/descargas/
 ```
 
+No necesitas crear esa carpeta manualmente. El programa ejecuta internamente una logica equivalente a:
+
+```python
+Path(output_folder).mkdir(parents=True, exist_ok=True)
+```
+
+Eso significa que la carpeta de salida se crea automaticamente si no existe, incluso si eliges otra carpeta desde `Examinar` o con `--carpeta`.
+
 Si usas la interfaz grafica, puedes elegir otra carpeta con el boton `Examinar`.
 
 Si usas consola, puedes elegir otra carpeta con `--carpeta`.
@@ -665,11 +672,10 @@ descargador-multimedia/
 |-- ejecutar_gui.bat
 |-- .gitignore
 |-- README.md
-`-- descargas/
-    `-- .gitkeep
+`-- descargas/   (se crea automaticamente al ejecutar el programa)
 ```
 
-No subas archivos descargados dentro de `descargas/`. La carpeta incluye `.gitkeep` solo para que GitHub conserve la carpeta vacia.
+No subas archivos descargados dentro de `descargas/`. De hecho, `.gitignore` ignora la carpeta `descargas/` completa porque esa carpeta se crea automaticamente al ejecutar el programa.
 
 ## Carpeta limpia para compartir
 
@@ -687,14 +693,14 @@ reales/
     |-- ejecutar_gui.bat
     |-- .gitignore
     |-- README.md
-    `-- descargas/
-        `-- .gitkeep
+    `-- descargas/   (opcional; se crea automaticamente)
 ```
 
 No debe incluir:
 
 - `__pycache__/`
 - `.venv/`
+- `descargas/` con archivos descargados.
 - archivos descargados como `.mp3`, `.mp4`, `.wav`, etc.
 - carpetas internas de Codex.
 - archivos temporales.
