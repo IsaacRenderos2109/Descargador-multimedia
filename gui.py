@@ -3,16 +3,19 @@ import tkinter as tk
 from pathlib import Path
 from tkinter import filedialog, messagebox, ttk
 
+try:
+    import yt_dlp
+except ImportError:
+    yt_dlp = None
+
 from app import (
     ALLOWED_FORMATS,
     AUDIO_FORMATS,
     DEFAULT_DOWNLOADS_DIR,
     LEGAL_NOTICE,
-    build_audio_command,
     build_output_template,
-    build_video_command,
     check_ffmpeg_installed,
-    get_ytdlp_command,
+    get_ffmpeg_location,
     normalize_urls,
 )
 
@@ -28,6 +31,8 @@ class DownloaderApp:
         self.format_var = tk.StringVar(value="mp3")
         self.folder_var = tk.StringVar(value=str(DEFAULT_DOWNLOADS_DIR))
         self.status_var = tk.StringVar(value="Listo para descargar.")
+        self.percent_var = tk.StringVar(value="0.0%")
+        self.progress_is_indeterminate = False
 
         self.create_widgets()
 
@@ -70,11 +75,23 @@ class DownloaderApp:
         browse_button = ttk.Button(main_frame, text="Examinar", command=self.choose_folder)
         browse_button.grid(row=7, column=2, padx=(8, 0), pady=(4, 10))
 
+        self.progress_bar = ttk.Progressbar(
+            main_frame,
+            orient="horizontal",
+            mode="determinate",
+            maximum=100,
+            length=420,
+        )
+        self.progress_bar.grid(row=8, column=0, columnspan=2, sticky="ew", pady=(4, 4))
+
+        percent_label = ttk.Label(main_frame, textvariable=self.percent_var, width=18)
+        percent_label.grid(row=8, column=2, sticky="e", padx=(8, 0), pady=(4, 4))
+
         self.download_button = ttk.Button(main_frame, text="Descargar", command=self.start_download)
-        self.download_button.grid(row=8, column=0, sticky="w", pady=(4, 8))
+        self.download_button.grid(row=9, column=0, sticky="w", pady=(8, 8))
 
         status_label = ttk.Label(main_frame, textvariable=self.status_var, wraplength=520)
-        status_label.grid(row=9, column=0, columnspan=3, sticky="w")
+        status_label.grid(row=10, column=0, columnspan=3, sticky="w")
 
     def choose_folder(self):
         """Abre un selector para elegir donde guardar la descarga."""
@@ -98,17 +115,17 @@ class DownloaderApp:
             messagebox.showerror("Formato invalido", "Elige un formato permitido.")
             return None
 
-        if get_ytdlp_command() is None:
+        if yt_dlp is None:
             messagebox.showerror(
                 "Falta yt-dlp",
-                "No se encontro yt-dlp. Instala las dependencias con: python -m pip install -r requirements.txt",
+                "No se encontro yt-dlp. Ejecuta instalar_dependencias.bat o usa: python -m pip install -r requirements.txt",
             )
             return None
 
         if not check_ffmpeg_installed():
             messagebox.showerror(
-                "Falta ffmpeg",
-                "No se encontro ffmpeg. Ejecuta instalar_dependencias.bat para instalar el respaldo de ffmpeg.",
+                "Falta FFmpeg",
+                "No se encontro FFmpeg. Ejecuta instalar_dependencias.bat o instala FFmpeg manualmente.",
             )
             return None
 
@@ -133,7 +150,8 @@ class DownloaderApp:
             return
 
         self.download_button.config(state="disabled")
-        self.status_var.set("Descargando... espera un momento.")
+        self.set_determinate_progress(0)
+        self.status_var.set("Preparando descarga...")
 
         thread = threading.Thread(
             target=self.download_worker,
@@ -142,37 +160,123 @@ class DownloaderApp:
         )
         thread.start()
 
-    def download_worker(self, urls, media_format, output_dir):
-        """Ejecuta yt-dlp sin congelar la ventana."""
-        output_template = build_output_template(output_dir, None, len(urls))
+    def build_ydl_options(self, media_format, output_dir, url_count):
+        """Construye las opciones para usar la API de yt-dlp."""
+        output_template = build_output_template(output_dir, None, url_count)
+        options = {
+            "outtmpl": output_template,
+            "noplaylist": True,
+            "progress_hooks": [self.progress_hook],
+            "postprocessor_hooks": [self.postprocessor_hook],
+        }
+
+        ffmpeg_location = get_ffmpeg_location()
+        if ffmpeg_location is not None:
+            options["ffmpeg_location"] = ffmpeg_location
 
         if media_format in AUDIO_FORMATS:
-            command = build_audio_command(urls, output_template, media_format)
+            options["format"] = "bestaudio/best"
+            options["postprocessors"] = [
+                {
+                    "key": "FFmpegExtractAudio",
+                    "preferredcodec": media_format,
+                    "preferredquality": "192",
+                }
+            ]
         else:
-            command = build_video_command(urls, output_template, media_format)
+            options["format"] = "bestvideo+bestaudio/best"
+            options["merge_output_format"] = media_format
 
+        return options
+
+    def progress_hook(self, data):
+        """Recibe el progreso real de yt-dlp desde el hilo secundario."""
+        status = data.get("status")
+
+        if status == "downloading":
+            downloaded = data.get("downloaded_bytes") or 0
+            total = data.get("total_bytes") or data.get("total_bytes_estimate")
+
+            if total:
+                percent = min((downloaded / total) * 100, 100)
+                self.root.after(0, self.set_determinate_progress, percent)
+                self.root.after(0, self.status_var.set, "Descargando...")
+            else:
+                self.root.after(0, self.set_indeterminate_progress, "Calculando progreso...")
+
+        elif status == "finished":
+            self.root.after(0, self.set_determinate_progress, 100)
+
+    def postprocessor_hook(self, data):
+        """Actualiza el estado durante conversiones o uniones con ffmpeg."""
+        status = data.get("status")
+
+        if status == "started":
+            self.root.after(0, self.status_var.set, "Convirtiendo archivo...")
+        elif status == "finished":
+            self.root.after(0, self.set_determinate_progress, 100)
+
+    def download_worker(self, urls, media_format, output_dir):
+        """Ejecuta yt-dlp sin congelar la ventana."""
         try:
-            # Se pasa una lista de argumentos y no se usa shell=True.
-            subprocess.run(command, check=True)
-        except subprocess.CalledProcessError as error:
+            options = self.build_ydl_options(media_format, output_dir, len(urls))
+            self.root.after(0, self.status_var.set, "Preparando descarga...")
+
+            with yt_dlp.YoutubeDL(options) as ydl:
+                ydl.download(urls)
+
+            self.root.after(0, self.finish_download, True, f"Descarga finalizada en: {output_dir}")
+        except yt_dlp.utils.DownloadError as error:
             self.root.after(
                 0,
                 self.finish_download,
                 False,
-                f"yt-dlp no pudo completar la descarga. Codigo de salida: {error.returncode}",
+                f"Error en la descarga.\n\nDetalle real de yt-dlp:\n{error}",
             )
-            return
+        except Exception as error:
+            self.root.after(
+                0,
+                self.finish_download,
+                False,
+                f"Error en la descarga.\n\nDetalle:\n{error}",
+            )
 
-        self.root.after(0, self.finish_download, True, f"Descarga finalizada en: {output_dir}")
+    def set_determinate_progress(self, percent):
+        """Muestra una barra con porcentaje conocido."""
+        if self.progress_is_indeterminate:
+            self.progress_bar.stop()
+            self.progress_bar.config(mode="determinate")
+            self.progress_is_indeterminate = False
+
+        percent = max(0, min(float(percent), 100))
+        self.progress_bar["value"] = percent
+        self.percent_var.set(f"{percent:.1f}%")
+
+    def set_indeterminate_progress(self, message):
+        """Muestra una barra animada cuando yt-dlp no sabe el tamano total."""
+        if not self.progress_is_indeterminate:
+            self.progress_bar.config(mode="indeterminate")
+            self.progress_bar.start(10)
+            self.progress_is_indeterminate = True
+
+        self.percent_var.set("Calculando progreso...")
+        self.status_var.set(message)
 
     def finish_download(self, success, message):
         """Actualiza la interfaz cuando termina la descarga."""
+        if self.progress_is_indeterminate:
+            self.progress_bar.stop()
+            self.progress_bar.config(mode="determinate")
+            self.progress_is_indeterminate = False
+
         self.download_button.config(state="normal")
-        self.status_var.set(message)
+        self.status_var.set("Descarga finalizada." if success else "Error en la descarga.")
 
         if success:
+            self.set_determinate_progress(100)
             messagebox.showinfo("Descarga completada", message)
         else:
+            self.set_determinate_progress(0)
             messagebox.showerror("Error de descarga", message)
 
 

@@ -25,6 +25,9 @@ El programa permite:
 - Elegir si quieres guardar el contenido como audio o video.
 - Elegir el formato de salida.
 - Seleccionar una carpeta de salida.
+- Ver el progreso real de la descarga en una barra de progreso.
+- Ver el porcentaje de avance.
+- Ver el estado actual del proceso.
 - Descargar usando `yt-dlp`.
 - Convertir o unir audio/video usando `ffmpeg`.
 - Guardar los archivos en `descargas/` o en la carpeta que elijas.
@@ -51,7 +54,7 @@ descargador-multimedia/
 - `requirements.txt`: lista de dependencias de Python. Incluye `yt-dlp` e `imageio-ffmpeg`.
 - `instalar_dependencias.bat`: instalador rapido para Windows. Verifica Python, intenta instalarlo o actualizarlo con Winget, si no hay Winget intenta descargar Python desde python.org, agrega Python y Scripts al PATH del usuario, instala dependencias de Python, verifica `yt-dlp` e instala un respaldo de `ffmpeg`.
 - `ejecutar_gui.bat`: abre la interfaz grafica con doble clic.
-- `.gitignore`: evita subir cachés, entornos virtuales y archivos descargados.
+- `.gitignore`: evita subir caches, entornos virtuales y archivos descargados.
 - `README.md`: instrucciones del proyecto.
 - `descargas/`: carpeta predeterminada donde se guardan los archivos descargados.
 
@@ -70,6 +73,46 @@ Video:
 - `mp4`
 - `webm`
 - `mkv`
+
+## Interfaz grafica con Tkinter
+
+El programa incluye una interfaz grafica hecha con Tkinter. Esta interfaz esta pensada para usar el descargador sin escribir comandos.
+
+Desde la ventana puedes:
+
+- Pegar una URL o varias URLs, una por linea.
+- Elegir el formato de salida.
+- Seleccionar la carpeta de salida con el boton `Examinar`.
+- Presionar el boton `Descargar`.
+- Ver una barra de progreso real durante la descarga.
+- Ver el porcentaje de avance, por ejemplo `45.8%`.
+- Ver mensajes de estado durante el proceso.
+
+Los formatos disponibles desde la interfaz son:
+
+- `mp3`
+- `m4a`
+- `wav`
+- `flac`
+- `opus`
+- `mp4`
+- `webm`
+- `mkv`
+
+La interfaz muestra estados como:
+
+- `Preparando descarga...`
+- `Descargando...`
+- `Calculando progreso...`
+- `Convirtiendo archivo...`
+- `Descarga finalizada.`
+- `Error en la descarga.`
+
+Mientras se realiza la descarga, el boton `Descargar` se bloquea para evitar iniciar otra descarga encima. Cuando el proceso termina o ocurre un error, el boton vuelve a activarse.
+
+La barra de progreso usa los `progress_hooks` de `yt-dlp`, por eso puede mostrar el progreso real cuando el sitio informa el tamano total del archivo. Si `yt-dlp` no puede calcular el tamano total, la barra cambia a modo indeterminado y muestra `Calculando progreso...`.
+
+Cuando descargas audio en `mp3`, `m4a`, `wav`, `flac` u `opus`, el programa usa FFmpeg para convertir el archivo y muestra `Convirtiendo archivo...`.
 
 ## Requisitos
 
@@ -160,6 +203,8 @@ El archivo hace estas tareas:
 - Verifica si `ffmpeg` existe.
 - Si falta `ffmpeg`, instala `imageio-ffmpeg` como respaldo para que la aplicacion pueda convertir sin depender del PATH del sistema.
 - Si el respaldo falla, intenta instalar `ffmpeg` con Winget usando `winget install Gyan.FFmpeg`.
+- Si ocurre un error importante, muestra un diagnostico con el paso exacto, que fallo, por que pudo fallar y que debe hacer el usuario.
+- Guarda el diagnostico en `diagnostico_instalacion.txt`.
 - Al final indica como ejecutar el programa.
 
 En resumen: el archivo intenta prepararse para varios escenarios: PC con Winget, PC sin Winget, Python fuera del PATH, alias falso de Microsoft Store, falta de `pip`, falta de `yt-dlp` y falta de `ffmpeg`.
@@ -205,7 +250,7 @@ python -m pip install -r requirements.txt
 
 ## Paso 5: instalar ffmpeg en Windows
 
-`ffmpeg` es necesario para convertir audio y unir video con audio.
+`ffmpeg` es necesario para convertir audio y unir video con audio. Si quieres descargar audio en `mp3`, `m4a`, `wav`, `flac` u `opus`, FFmpeg es obligatorio para hacer la conversion.
 
 Si usaste `instalar_dependencias.bat`, el archivo ya intento revisar o instalar `ffmpeg` con Winget. Si no funciono, puedes instalarlo manualmente con las instrucciones de esta seccion.
 
@@ -278,11 +323,15 @@ python gui.py
 La ventana permite:
 
 1. Pegar una URL o varios enlaces, uno por linea.
-2. Elegir el formato.
-3. Elegir la carpeta de salida.
+2. Elegir el formato de salida: `mp3`, `m4a`, `wav`, `flac`, `opus`, `mp4`, `webm` o `mkv`.
+3. Elegir la carpeta de salida con el boton `Examinar`.
 4. Presionar `Descargar`.
+5. Ver la barra de progreso y el porcentaje.
+6. Ver el estado actual de la descarga.
 
 Antes de iniciar, la aplicacion muestra una confirmacion con la URL, el formato y la carpeta elegida.
+
+Durante la descarga, el boton `Descargar` queda desactivado. Al finalizar o fallar, vuelve a activarse automaticamente.
 
 ### Descargar varios enlaces desde la interfaz
 
@@ -428,8 +477,26 @@ Hace lo siguiente:
 - Comprueba si `ffmpeg` esta instalado.
 - Si falta `ffmpeg`, instala `imageio-ffmpeg` como respaldo.
 - Si el respaldo no funciona y hay Winget, intenta instalar ffmpeg del sistema.
+- Si algo falla, muestra un diagnostico claro.
 
 Si el `.bat` instala Python por primera vez, normalmente intentara seguir solo porque agrega Python al PATH de la ventana actual y al PATH del usuario. Si Windows aun no reconoce `python`, cierra la ventana y ejecuta `instalar_dependencias.bat` una segunda vez.
+
+### Diagnostico de errores del instalador
+
+Si `instalar_dependencias.bat` falla, no solo mostrara `ERROR`. Tambien mostrara:
+
+- En que paso ocurrio.
+- Que fallo.
+- Por que pudo fallar.
+- Que debe hacer el usuario.
+
+Ademas, crea o actualiza este archivo:
+
+```text
+diagnostico_instalacion.txt
+```
+
+Ese archivo queda en la misma carpeta del programa. Si necesitas pedir ayuda, puedes enviar una captura del mensaje o compartir el contenido de `diagnostico_instalacion.txt`.
 
 ### ejecutar_gui.bat
 
@@ -503,6 +570,29 @@ Verifica:
 ```powershell
 ffmpeg -version
 ```
+
+### La barra muestra Calculando progreso
+
+Esto no siempre es un error. A veces `yt-dlp` no puede saber el tamano total del archivo antes o durante la descarga. En ese caso, la interfaz usa una barra indeterminada y muestra:
+
+```text
+Calculando progreso...
+```
+
+La descarga puede continuar normalmente aunque no se muestre un porcentaje exacto.
+
+### La GUI muestra Error en la descarga
+
+La interfaz muestra `Error en la descarga` cuando `yt-dlp` no puede completar el proceso. El mensaje incluye el detalle real devuelto por `yt-dlp`.
+
+Puede ocurrir por:
+
+- URL invalida.
+- Contenido privado.
+- Contenido con restricciones de pago.
+- Sitio que no permite descargar ese contenido.
+- Problemas de internet.
+- Falta de FFmpeg para convertir o unir archivos.
 
 ### La ventana no abre
 
