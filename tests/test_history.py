@@ -1,9 +1,34 @@
 import csv
+import sqlite3
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import replace
 
+import pytest
+
 from video_downloader.history import History
 from video_downloader.models import Status
+
+
+def test_connections_close_after_each_operation(tmp_path, job, monkeypatch):
+    real_connect = sqlite3.connect
+    connections = []
+
+    def connect(*args, **kwargs):
+        connection = real_connect(*args, **kwargs)
+        connections.append(connection)
+        return connection
+
+    monkeypatch.setattr(sqlite3, "connect", connect)
+    history = History(tmp_path / "history.db")
+    history.record(job)
+    assert len(history.rows()) == 1
+    try:
+        for connection in connections:
+            with pytest.raises(sqlite3.ProgrammingError, match="closed"):
+                connection.execute("SELECT 1")
+    finally:
+        for connection in connections:
+            connection.close()
 
 
 def test_persistent_terminal_states_and_idempotency(tmp_path, job):

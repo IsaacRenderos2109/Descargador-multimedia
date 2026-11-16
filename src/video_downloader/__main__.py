@@ -3,12 +3,21 @@ import sys
 import tempfile
 from pathlib import Path
 
-from PySide6.QtCore import QSettings, QStandardPaths, QTimer
+from PySide6.QtCore import QCoreApplication, QEvent, QSettings, QStandardPaths, QTimer
 from PySide6.QtWidgets import QApplication, QMessageBox
 
 from .history import History
 from .ui import MainWindow
 from .workers import smoke_child
+
+
+def run_window(app: QApplication, window: MainWindow) -> int:
+    """Destroy the window and its Qt children before QApplication is released."""
+    try:
+        return app.exec()
+    finally:
+        window.deleteLater()
+        QCoreApplication.sendPostedEvents(None, QEvent.Type.DeferredDelete)
 
 
 def smoke_test(app: QApplication) -> int:
@@ -36,7 +45,7 @@ def smoke_test(app: QApplication) -> int:
             messages.close()
         QTimer.singleShot(100, window.close)
         QTimer.singleShot(200, app.quit)
-        return app.exec()
+        return run_window(app, window)
 
 
 def main() -> int:
@@ -64,7 +73,7 @@ def main() -> int:
         available = screen.availableGeometry()
         window.resize(min(1180, available.width() - 60), min(850, available.height() - 60))
     window.show()
-    return app.exec()
+    return run_window(app, window)
 
 
 if __name__ == "__main__":

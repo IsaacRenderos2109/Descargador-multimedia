@@ -1,5 +1,7 @@
 import csv
 import sqlite3
+from collections.abc import Iterator
+from contextlib import contextmanager
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -21,10 +23,15 @@ class History:
                 status TEXT NOT NULL, path TEXT NOT NULL, error TEXT NOT NULL)"""
             )
 
-    def _connect(self) -> sqlite3.Connection:
+    @contextmanager
+    def _connect(self) -> Iterator[sqlite3.Connection]:
         connection = sqlite3.connect(self.path, timeout=10)
         connection.row_factory = sqlite3.Row
-        return connection
+        try:
+            with connection:
+                yield connection
+        finally:
+            connection.close()
 
     def record(self, job: Job) -> None:
         with self._connect() as db:

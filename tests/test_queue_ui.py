@@ -1,4 +1,5 @@
 from dataclasses import replace
+from threading import Event
 
 from PySide6.QtCore import QSettings, QThread, Signal
 
@@ -19,13 +20,18 @@ class FakeWorker(QThread):
         super().__init__()
         self.job = job
         self.was_cancelled = False
+        self.cancel_event = Event()
 
     def cancel(self):
         self.was_cancelled = True
+        self.cancel_event.set()
 
     def run(self):
         self.started_jobs.append(self.job.id)
-        self.msleep(30)
+        if self.job.media.title == "wait-for-cancel":
+            self.cancel_event.wait(timeout=5)
+        else:
+            self.msleep(30)
         if self.was_cancelled:
             self.cancelled.emit()
         elif self.job.media.title == "fail":
@@ -50,6 +56,7 @@ def test_serial_queue_continues_after_failure_and_records(qtbot, tmp_path, job):
 
 def test_cancel_all_and_duplicate_queue(qtbot, tmp_path, job):
     queue = DownloadQueue(History(tmp_path / "h.db"), FakeWorker)
+    job = replace(job, media=replace(job.media, title="wait-for-cancel"))
     pending = replace(job, id="pending", media=replace(job.media, id="lmnopqrstuv"))
     with qtbot.waitSignal(queue.idle, timeout=5000):
         queue.add([job, replace(job, id="duplicate"), pending])

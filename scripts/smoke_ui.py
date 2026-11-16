@@ -6,6 +6,7 @@ from pathlib import Path
 from PySide6.QtCore import QSettings, QTimer
 from PySide6.QtWidgets import QApplication
 
+from video_downloader.__main__ import run_window
 from video_downloader.history import History
 from video_downloader.ui import MainWindow
 
@@ -22,5 +23,5 @@ with tempfile.TemporaryDirectory() as directory:
     assert window.tabs.count() == 3
     QTimer.singleShot(100, window.close)
     QTimer.singleShot(200, app.quit)
-    assert app.exec() == 0
+    assert run_window(app, window) == 0
 print("GUI startup OK (offline)")
