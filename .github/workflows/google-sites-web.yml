@@ -11,6 +11,14 @@ on:
       - "compose.web.yml"
       - "requirements-web*.txt"
       - "requirements-web*.in"
+      - ".env.example"
+      - ".dockerignore"
+      - ".gitignore"
+      - "README.md"
+      - "docs/google-sites-web/**"
+      - "deploy/**"
+      - "scripts/create_web_env.py"
+      - ".github/workflows/ci.yml"
       - ".github/workflows/google-sites-web.yml"
   pull_request:
     branches: [feat/video-downloader-desktop, codex/cloud-bootstrap-v2]
@@ -22,6 +30,14 @@ on:
       - "compose.web.yml"
       - "requirements-web*.txt"
       - "requirements-web*.in"
+      - ".env.example"
+      - ".dockerignore"
+      - ".gitignore"
+      - "README.md"
+      - "docs/google-sites-web/**"
+      - "deploy/**"
+      - "scripts/create_web_env.py"
+      - ".github/workflows/ci.yml"
       - ".github/workflows/google-sites-web.yml"
   workflow_dispatch:
 

@@ -31,4 +31,15 @@ Pull Request hacia `feat/video-downloader-desktop`/`codex/cloud-bootstrap-v2` y
 manualmente si está visible en Actions. GitHub normalmente solo muestra el
 botón manual cuando el workflow ya existe en la rama predeterminada. No es
 necesario cambiar `main` para probarlo: el push de la rama y el evento de PR lo
-activan si GitHub admite el workflow de la rama propuesta.
+activan si GitHub admite el workflow de la rama propuesta. El workflow web
+incluye también documentación, el generador `.env` y cambios al workflow común.
+
+Los jobs del workflow preexistente `Tests and Windows build` se saltan para esta
+rama web, para evitar empaquetar una aplicación de escritorio como parte de una
+publicación web. El workflow se conserva para los cambios de escritorio y se
+puede ejecutar manualmente desde una rama de escritorio.
+
+Una publicación se considera verificada solo después de comprobar en el host
+remoto `/health` sobre HTTPS, login, descarga de un medio autorizado, límites,
+cancelación y caducidad. El iframe se debe probar en un Google Sites publicado y
+en los navegadores destino; los tests simulados no demuestran integración real.

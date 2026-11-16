@@ -100,6 +100,9 @@ def test_google_sites_headers_and_static_page(tmp_path: Path) -> None:
         assert "https://sites.google.com" in response.headers["content-security-policy"]
         assert "x-frame-options" not in response.headers
         assert response.headers["cache-control"] == "private, no-store"
+        health = client.get("/health")
+        assert health.status_code == 200
+        assert health.json() == {"status": "ok"}
 
 
 def test_access_code_url_validation_and_authorized_job_file_isolation(tmp_path: Path) -> None:
