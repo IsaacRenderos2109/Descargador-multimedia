@@ -1,0 +1,29 @@
+name: Build Windows executable
+
+on:
+  workflow_dispatch:
+
+jobs:
+  package:
+    runs-on: windows-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements.txt
+      - name: Install application and packager
+        run: python -m pip install -r requirements.txt pyinstaller
+      - name: Build Tkinter GUI executable
+        run: python -m PyInstaller --noconfirm --clean --onefile --windowed --collect-all imageio_ffmpeg --name DescargadorMultimedia gui.py
+      - name: Upload executable
+        uses: actions/upload-artifact@v4
+        with:
+          name: DescargadorMultimedia-Windows
+          path: dist/DescargadorMultimedia.exe
+          if-no-files-found: error
