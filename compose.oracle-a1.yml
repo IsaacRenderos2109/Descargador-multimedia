@@ -1,0 +1,10 @@
+# Oracle Ampere A1 only. Combine with compose.web.yml; this keeps the existing
+# backend/proxy network isolation and selects the native ARM64 image variant.
+services:
+  web:
+    platform: linux/arm64/v8
+    cpus: 1.5
+
+  egress-proxy:
+    platform: linux/arm64/v8
+    cpus: 0.5
