@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f6f7fb">
+    <title>Video Downloader · Contenido autorizado</title>
+    <meta name="description" content="Prepara videos y audio autorizados desde tu navegador.">
+    <link rel="stylesheet" href="/static/styles.css">
+    <script src="/static/app.js" defer></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="Video Downloader, inicio">
+        <span class="brand-icon" aria-hidden="true">↓</span>
+        <span>Video <strong>Downloader</strong></span>
+      </a>
+      <span class="secure-label"><span class="secure-dot"></span> Acceso privado</span>
+    </header>
+
+    <main class="page-shell">
+      <section id="login-panel" class="login-layout" hidden>
+        <div class="intro">
+          <p class="eyebrow">TU ESPACIO MULTIMEDIA</p>
+          <h1>Lo que te inspira,<br><span>a tu manera.</span></h1>
+          <p class="intro-copy">Prepara archivos de video y audio autorizados, directamente desde tu navegador.</p>
+          <div class="trust-line"><span aria-hidden="true">✓</span> Archivos privados con caducidad automática</div>
+          <div class="trust-line"><span aria-hidden="true">✓</span> No se eluden restricciones de acceso</div>
+        </div>
+        <section class="panel login-card" aria-labelledby="login-title">
+          <span class="eyebrow">ACCESO RESTRINGIDO</span>
+          <h2 id="login-title">Entra a tu espacio</h2>
+          <p class="muted">Escribe el código de acceso que te proporcionó el administrador.</p>
+          <form id="login-form">
+            <label for="access-code">Código de acceso</label>
+            <input id="access-code" name="code" type="password" autocomplete="current-password" required minlength="16" maxlength="256">
+            <button class="button primary full" type="submit">Continuar <span aria-hidden="true">→</span></button>
+            <p id="login-error" class="form-error" role="alert" hidden></p>
+          </form>
+          <p class="small-note"><span aria-hidden="true">▣</span> La sesión se cifra y queda aislada en este navegador.</p>
+        </section>
+      </section>
+
+      <section id="workspace" hidden>
+        <div class="workspace-heading">
+          <div>
+            <p class="eyebrow">UN ENLACE. NUEVAS POSIBILIDADES.</p>
+            <h1>Prepara tus archivos</h1>
+            <p class="muted">Analiza videos públicos y elige una calidad disponible.</p>
+          </div>
+          <button id="logout-button" class="button subtle" type="button">Cerrar sesión</button>
+        </div>
+
+        <div id="notice" class="notice" role="status" hidden></div>
+        <section class="main-grid">
+          <div class="panel composer">
+            <div class="section-title">
+              <span class="step">01</span>
+              <div><h2>Analizar enlaces</h2><p class="muted">Un video público por línea, hasta 20 por envío.</p></div>
+            </div>
+            <form id="analyze-form">
+              <label for="video-urls">Enlaces de YouTube</label>
+              <textarea id="video-urls" name="urls" rows="3" maxlength="8000" placeholder="https://www.youtube.com/watch?v=…" required></textarea>
+              <label class="check-row"><input id="analyze-consent" type="checkbox" required><span>Confirmo que tengo autorización para procesar estos videos.</span></label>
+              <button id="analyze-button" class="button primary" type="submit">Analizar videos <span aria-hidden="true">→</span></button>
+              <p id="analyze-error" class="form-error" role="alert" hidden></p>
+            </form>
+            <div class="privacy-callout"><span aria-hidden="true">⌑</span><p>Solo se admiten enlaces HTTPS de videos individuales. Las listas, videos privados y emisiones en directo no están disponibles.</p></div>
+          </div>
+
+          <aside class="aside-card">
+            <p class="eyebrow">DISEÑADO PARA TU NAVEGADOR</p>
+            <h2>De la idea<br>al siguiente paso.</h2>
+            <ol>
+              <li><span>1</span><div><strong>Pega tus enlaces</strong><p>El sistema comprueba que sean válidos.</p></div></li>
+              <li><span>2</span><div><strong>Elige tu formato</strong><p>MP4 o MP3, según las opciones disponibles.</p></div></li>
+              <li><span>3</span><div><strong>Guarda tu archivo</strong><p>Descárgalo antes de que caduque.</p></div></li>
+            </ol>
+            <div class="embed-tip"><strong>¿No ves el contenido?</strong><br>Abre el servicio en una pestaña nueva si el navegador bloquea cookies en sitios insertados.</div>
+          </aside>
+        </section>
+
+        <section class="panel jobs-panel">
+          <div class="section-title">
+            <span class="step">02</span>
+            <div><h2>Tus trabajos</h2><p class="muted">El progreso se actualiza automáticamente. Los archivos son temporales.</p></div>
+          </div>
+          <div id="empty-jobs" class="empty-state"><span aria-hidden="true">◷</span><h3>Tu lista está vacía</h3><p>Analiza un enlace para ver los formatos y calidades.</p></div>
+          <div id="job-list" class="job-list" aria-live="polite"></div>
+        </section>
+      </section>
+
+      <footer class="page-footer">
+        <span>Solo procesa contenido propio o para el que tengas autorización.</span>
+        <a id="direct-link" href="/" target="_blank" rel="noopener noreferrer">Abrir en una pestaña nueva ↗</a>
+      </footer>
+    </main>
+  </body>
+</html>

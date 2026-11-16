@@ -9,6 +9,9 @@ permissions:
 
 jobs:
   test:
+    # The browser-only branch has its own web checks. Keep the legacy desktop
+    # matrix and Windows executable build for desktop work, not web-only PRs.
+    if: ${{ github.ref_name != 'feat/google-sites-web' && github.head_ref != 'feat/google-sites-web' }}
     strategy:
       fail-fast: false
       matrix:
@@ -53,6 +56,7 @@ jobs:
           path: test-results.xml
 
   windows-build:
+    if: ${{ github.ref_name != 'feat/google-sites-web' && github.head_ref != 'feat/google-sites-web' }}
     needs: test
     runs-on: windows-latest
     env:
