@@ -1,5 +1,10 @@
 # Despliegue del servicio web
 
+Para una alternativa con presupuesto estricto de USD 0, consulta
+[Preparación para Oracle Cloud Always Free](ORACLE-ALWAYS-FREE.md). La guía no
+declara que Oracle sea gratuito para esta cuenta y prohíbe continuar mientras
+la consola no confirme costo cero para todos los recursos.
+
 Google Sites presenta la aplicación; el backend FastAPI y los procesos de
 yt-dlp/FFmpeg viven en un host Linux remoto. Quien la usa solo necesita un
 navegador. No debe instalar programas ni dejar su computadora encendida.

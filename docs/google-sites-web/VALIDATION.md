@@ -14,7 +14,14 @@ ruff format --check web_service infra tests_web
 python -m pytest tests_web -q
 docker compose -f compose.web.yml config --quiet
 docker build -f Dockerfile.web -t video-downloader-web:local .
+docker compose -f compose.web.yml -f compose.oracle-a1.yml config --quiet
 ```
+
+La rama de preparación también comprueba que PyPI ofrece wheels compatibles
+con AArch64 para todas las dependencias fijadas y construye una imagen
+`linux/arm64/v8` usando QEMU en GitHub Actions. El builder local de Codex puede
+carecer de emulación ARM64; en ese caso `exec format error` no confirma ni
+descarta la ejecución del contenedor en una instancia Ampere real.
 
 En una red de desarrollo que inspeccione TLS, puedes pasar su CA confiable como
 secreto de BuildKit (`--secret id=ca_bundle,src=/ruta/a/ca.pem`); el certificado

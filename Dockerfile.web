@@ -26,6 +26,13 @@ RUN --mount=type=secret,id=ca_bundle,target=/run/secrets/build-ca.pem,required=f
         python -m pip install --no-cache-dir -r requirements-web.txt; \
     fi
 
+# Exercise architecture-specific runtime binaries during both native and
+# emulated builds, including SQLite's standard-library extension.
+RUN python -c "import sqlite3, yt_dlp; db = sqlite3.connect(':memory:'); assert db.execute('select 1').fetchone() == (1,)" \
+    && node --version >/dev/null \
+    && ffmpeg -version >/dev/null \
+    && ffprobe -version >/dev/null
+
 COPY src/video_downloader/__init__.py src/video_downloader/models.py \
     src/video_downloader/service.py src/video_downloader/validation.py ./src/video_downloader/
 COPY web_service/ ./web_service/

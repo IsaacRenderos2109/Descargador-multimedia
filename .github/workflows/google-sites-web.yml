@@ -2,12 +2,13 @@ name: Google Sites web service
 
 on:
   push:
-    branches: [feat/google-sites-web]
+    branches: [feat/google-sites-web, feat/oracle-always-free-arm64]
     paths:
       - "web_service/**"
       - "infra/**"
       - "tests_web/**"
       - "Dockerfile.web"
+      - "compose.oracle-a1.yml"
       - "compose.web.yml"
       - "requirements-web*.txt"
       - "requirements-web*.in"
@@ -21,12 +22,13 @@ on:
       - ".github/workflows/ci.yml"
       - ".github/workflows/google-sites-web.yml"
   pull_request:
-    branches: [feat/video-downloader-desktop, codex/cloud-bootstrap-v2]
+    branches: [feat/video-downloader-desktop, codex/cloud-bootstrap-v2, feat/google-sites-web]
     paths:
       - "web_service/**"
       - "infra/**"
       - "tests_web/**"
       - "Dockerfile.web"
+      - "compose.oracle-a1.yml"
       - "compose.web.yml"
       - "requirements-web*.txt"
       - "requirements-web*.in"
@@ -66,5 +68,14 @@ jobs:
         run: python -m pytest tests_web -q
       - name: Validate Compose configuration
         run: docker compose -f compose.web.yml config --quiet
+      - name: Validate Oracle A1 Compose overlay
+        run: docker compose -f compose.web.yml -f compose.oracle-a1.yml config --quiet
       - name: Build Linux backend image
         run: docker build -f Dockerfile.web -t video-downloader-web:test .
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+      - name: Build Oracle ARM64 backend image with QEMU
+        run: >-
+          docker buildx build --platform linux/arm64/v8
+          --output=type=oci,dest=/tmp/video-downloader-web-arm64.tar
+          -f Dockerfile.web .
