@@ -1,10 +1,33 @@
 # Video Downloader
 
-Aplicación de escritorio para Windows con Python 3.11+, PySide6, yt-dlp y SQLite.
-Descarga contenido público de YouTube como MP4 o extrae MP3 únicamente cuando
-tengas autorización. No elude DRM, inicios de sesión ni restricciones.
+La solución web de este proyecto se usa enteramente desde el navegador: no
+requiere instalar programas en el dispositivo ni mantener el ordenador encendido.
+Google Sites puede insertar la página del servicio FastAPI alojado en la nube o
+enlazar a ella directamente. El servicio aún no está desplegado y no hay una URL
+pública de producción.
 
-## Funciones
+## Servicio web para Google Sites
+
+La rama `feat/google-sites-web` incluye una interfaz HTML, CSS y JavaScript en
+español, un backend FastAPI y un worker que reutiliza yt-dlp/FFmpeg del proyecto.
+Analiza enlaces individuales públicos, ofrece MP4/MP3 y las calidades disponibles,
+muestra el estado del trabajo y permite descargar el archivo desde el navegador.
+Solo debe procesar contenido para el que el usuario tenga autorización; no evita
+DRM ni restricciones de acceso.
+
+El backend se aloja por separado en Linux con Docker Compose. Sigue
+[la guía de publicación, inserción en Sites y costes](docs/google-sites-web/DEPLOYMENT.md),
+[los controles de seguridad](docs/google-sites-web/SECURITY.md) y
+[las pruebas y verificaciones](docs/google-sites-web/VALIDATION.md). GitHub guarda
+el código; Google Sites solo presenta el sitio remoto. No se ha probado una
+descarga real ni una inserción en una página de producción.
+
+## Aplicación de escritorio existente (independiente)
+
+El repositorio también conserva la aplicación de escritorio preexistente para
+Windows. Esa aplicación no forma parte del nuevo flujo web y se mantiene separada.
+
+### Funciones de escritorio
 
 - Análisis de videos y listas públicas: título, duración, miniatura y formatos.
 - MP4 con altura exacta de 360p, 480p, 720p, 1080p, 1440p o 2160p/4K, si existe.
@@ -15,7 +38,7 @@ tengas autorización. No elude DRM, inicios de sesión ni restricciones.
 
 ![Interfaz con datos simulados](docs/interface.png)
 
-## Instalación en Windows
+### Instalación de la aplicación de escritorio en Windows
 
 Recomendado: Windows 10/11 x64 y Python 3.13 x64; mínimo Python 3.11.
 Instala Python desde https://www.python.org/downloads/windows/ con el lanzador `py`.
@@ -53,7 +76,7 @@ Los BAT no instalan Python ni herramientas del sistema automáticamente.
 Si PowerShell bloquea la activación, utiliza directamente
 `.venv\Scripts\python.exe -m video_downloader`.
 
-## Funcionamiento
+### Funcionamiento de la aplicación de escritorio
 
 1. Pega enlaces de YouTube, uno por línea, y pulsa **Analizar enlaces**.
 2. Revisa los metadatos y marca los videos deseados.
@@ -90,7 +113,7 @@ y formatos ausentes. No se proporcionan cookies, credenciales ni mecanismos de a
 La confirmación de autorización es una declaración del usuario, no una verificación
 jurídica automática.
 
-## Desarrollo y verificaciones
+### Desarrollo y verificaciones de escritorio
 
 ```powershell
 python -m pip install -r requirements-dev.txt
@@ -116,7 +139,7 @@ sintéticos y FFprobe. Si faltan FFmpeg/FFprobe, esas dos pruebas se omiten
 explícitamente; no equivale a validación completa. Consulta
 [el informe](docs/VALIDATION.md) y [la arquitectura](docs/ARCHITECTURE.md).
 
-## Obtener el ejecutable `.exe`
+### Ejecutable de la aplicación de escritorio existente
 
 PyInstaller debe ejecutarse **en Windows**: no compila Windows desde Linux.
 
@@ -148,7 +171,7 @@ consulta [THIRD_PARTY.md](THIRD_PARTY.md). Sin esa opción no se empaquetan.
 El ejecutable no está firmado. Antes de distribuirlo públicamente, valida en una
 VM limpia de Windows, revisa licencias y firma con Authenticode.
 
-## Mantenimiento y publicación
+### Mantenimiento y publicación de escritorio
 
 `pyproject.toml` declara dependencias; `requirements.txt` y `requirements-dev.txt`
 fijan versiones, incluidos los extras recomendados de yt-dlp y EJS. Dependabot

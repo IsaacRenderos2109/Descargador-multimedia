@@ -1,0 +1,54 @@
+name: Google Sites web service
+
+on:
+  push:
+    branches: [feat/google-sites-web]
+    paths:
+      - "web_service/**"
+      - "infra/**"
+      - "tests_web/**"
+      - "Dockerfile.web"
+      - "compose.web.yml"
+      - "requirements-web*.txt"
+      - "requirements-web*.in"
+      - ".github/workflows/google-sites-web.yml"
+  pull_request:
+    branches: [feat/video-downloader-desktop, codex/cloud-bootstrap-v2]
+    paths:
+      - "web_service/**"
+      - "infra/**"
+      - "tests_web/**"
+      - "Dockerfile.web"
+      - "compose.web.yml"
+      - "requirements-web*.txt"
+      - "requirements-web*.in"
+      - ".github/workflows/google-sites-web.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements-web-dev.txt
+      - name: Install FFmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - name: Install web dependencies
+        run: python -m pip install -r requirements-web-dev.txt
+      - name: Check style
+        run: |
+          ruff check web_service infra tests_web
+          ruff format --check web_service infra tests_web
+      - name: Run simulated web tests
+        run: python -m pytest tests_web -q
+      - name: Validate Compose configuration
+        run: docker compose -f compose.web.yml config --quiet
+      - name: Build Linux backend image
+        run: docker build -f Dockerfile.web -t video-downloader-web:test .

@@ -27,3 +27,12 @@ dist/
 *.log
 test-results.xml
 tools/
+node_modules/
+.next/
+.env
+.env.*
+!.env.example
+*.tsbuildinfo
+web_service/data/
+web_service/__pycache__/
+tests_web/__pycache__/

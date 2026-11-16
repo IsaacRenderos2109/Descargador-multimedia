@@ -1,0 +1,40 @@
+# syntax=docker/dockerfile:1.7
+
+FROM node:26.13.1-bookworm-slim AS node-runtime
+
+FROM python:3.12.14-slim-bookworm
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PATH="/usr/local/bin:${PATH}"
+
+RUN apt-get update \
+    && apt-get install --no-install-recommends -y ca-certificates ffmpeg libatomic1 libstdc++6 \
+    && rm -rf /var/lib/apt/lists/* \
+    && useradd --uid 10001 --create-home --shell /usr/sbin/nologin app \
+    && mkdir -p /data/jobs \
+    && chown -R app:app /data
+
+COPY --from=node-runtime /usr/local/bin/node /usr/local/bin/node
+
+WORKDIR /app
+COPY requirements-web.txt ./requirements-web.txt
+RUN --mount=type=secret,id=ca_bundle,target=/run/secrets/build-ca.pem,required=false \
+    if [ -f /run/secrets/build-ca.pem ]; then \
+        PIP_CERT=/run/secrets/build-ca.pem python -m pip install --no-cache-dir -r requirements-web.txt; \
+    else \
+        python -m pip install --no-cache-dir -r requirements-web.txt; \
+    fi
+
+COPY src/video_downloader/__init__.py src/video_downloader/models.py \
+    src/video_downloader/service.py src/video_downloader/validation.py ./src/video_downloader/
+COPY web_service/ ./web_service/
+COPY infra/ ./infra/
+RUN chmod -R a+rX /app/src /app/web_service /app/infra
+
+USER 10001:10001
+EXPOSE 8000
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+    CMD python -c "import socket; socket.create_connection(('127.0.0.1', 8000), timeout=2).close()"
+
+CMD ["uvicorn", "web_service.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1"]
