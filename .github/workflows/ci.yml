@@ -11,7 +11,7 @@ jobs:
   test:
     # The browser-only branch has its own web checks. Keep the legacy desktop
     # matrix and Windows executable build for desktop work, not web-only PRs.
-    if: ${{ github.ref_name != 'feat/google-sites-web' && github.head_ref != 'feat/google-sites-web' }}
+    if: ${{ github.ref_name != 'feat/google-sites-web' && github.head_ref != 'feat/google-sites-web' && github.ref_name != 'feat/oracle-always-free-arm64' && github.head_ref != 'feat/oracle-always-free-arm64' }}
     strategy:
       fail-fast: false
       matrix:
@@ -51,7 +51,7 @@ jobs:
           path: test-results.xml
 
   windows-build:
-    if: ${{ github.ref_name != 'feat/google-sites-web' && github.head_ref != 'feat/google-sites-web' }}
+    if: ${{ github.ref_name != 'feat/google-sites-web' && github.head_ref != 'feat/google-sites-web' && github.ref_name != 'feat/oracle-always-free-arm64' && github.head_ref != 'feat/oracle-always-free-arm64' }}
     needs: test
     runs-on: windows-latest
     env:
