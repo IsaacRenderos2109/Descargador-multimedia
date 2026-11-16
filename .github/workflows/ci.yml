@@ -38,6 +38,8 @@ jobs:
       - run: ruff check src tests scripts app.py gui.py desktop.py
       - run: ruff format --check src tests scripts app.py gui.py desktop.py
       - run: mypy
+      - name: Type check Windows target
+        run: mypy --platform win32
       - run: python scripts/check_runtime.py
       - run: python -m pytest -q --junitxml=test-results.xml
       - run: python scripts/smoke_ui.py

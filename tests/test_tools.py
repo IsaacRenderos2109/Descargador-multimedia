@@ -66,7 +66,7 @@ def test_windows_cancel_stops_process_tree(monkeypatch):
             self.alive = False
 
     calls = []
-    monkeypatch.setattr(workers, "os", SimpleNamespace(name="nt"))
+    monkeypatch.setattr(workers, "sys", SimpleNamespace(platform="win32"))
     monkeypatch.setattr(
         workers.subprocess, "run", lambda cmd, **kwargs: calls.append((cmd, kwargs))
     )

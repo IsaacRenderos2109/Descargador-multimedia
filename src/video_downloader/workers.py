@@ -4,6 +4,7 @@ import queue
 import shutil
 import signal
 import subprocess
+import sys
 import threading
 import time
 from typing import Any
@@ -27,7 +28,7 @@ class DiagnosticsWorker(QThread):
 
 def download_process(job: Job, messages: Any) -> None:
     """Separate process lets cancellation stop yt-dlp AND its FFmpeg children."""
-    if os.name != "nt":
+    if sys.platform != "win32":
         os.setsid()
     try:
         path = Downloader().download(
@@ -45,7 +46,7 @@ def download_process(job: Job, messages: Any) -> None:
 def stop_process(process: Any) -> None:
     if not process.is_alive():
         return
-    if os.name == "nt":
+    if sys.platform == "win32":
         try:
             subprocess.run(
                 ["taskkill", "/PID", str(process.pid), "/T", "/F"],
@@ -62,7 +63,7 @@ def stop_process(process: Any) -> None:
             process.terminate()
     process.join(timeout=3)
     if process.is_alive():
-        if os.name != "nt":
+        if sys.platform != "win32":
             try:
                 os.killpg(process.pid, signal.SIGKILL)
             except ProcessLookupError:
