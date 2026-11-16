@@ -42,6 +42,9 @@ jobs:
         run: mypy --platform win32
       - run: python scripts/check_runtime.py
       - run: python -m pytest -q --junitxml=test-results.xml
+      - name: Report test failures as annotations
+        if: failure()
+        run: python scripts/report_test_failures.py test-results.xml
       - run: python scripts/smoke_ui.py
       - uses: actions/upload-artifact@v4
         if: always()
