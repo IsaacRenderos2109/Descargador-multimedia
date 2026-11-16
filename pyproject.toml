@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "video-downloader-desktop"
+version = "1.0.0"
+description = "Desktop YouTube downloader for authorized content"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+dependencies = ["PySide6>=6.8,<7", "yt-dlp[default]>=2026.10.26"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8,<10", "pytest-qt>=4.4,<5", "ruff>=0.11", "mypy>=1.15", "pyinstaller>=6.12", "pip-tools>=7.4"]
+
+[project.gui-scripts]
+video-downloader = "video_downloader.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+qt_api = "pyside6"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.mypy]
+python_version = "3.11"
+files = ["src/video_downloader"]
+check_untyped_defs = true
+disallow_untyped_defs = true
+warn_unused_ignores = true
+
+[[tool.mypy.overrides]]
+module = ["yt_dlp", "yt_dlp.*", "yt_dlp_ejs"]
+ignore_missing_imports = true

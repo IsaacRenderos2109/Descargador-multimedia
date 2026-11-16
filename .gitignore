@@ -13,3 +13,17 @@ descargas/
 *.webm
 *.mkv
 diagnostico_instalacion.txt
+
+# Development and packaging
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+build/
+dist/
+*.sqlite3
+*.sqlite3-shm
+*.sqlite3-wal
+*.log
+test-results.xml
+tools/

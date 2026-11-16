@@ -1,0 +1,6 @@
+include LICENSE README.md THIRD_PARTY.md VideoDownloader.spec
+include desktop.py app.py gui.py *.bat requirements*.txt
+recursive-include docs *.md *.png
+recursive-include scripts *.py *.ps1
+recursive-include tests *.py
+recursive-include .github *.yml
